@@ -1,0 +1,14 @@
+with-expecter: True
+inpackage: False
+dir: "{{.InterfaceDir}}/mocks"
+mockname: "Mock{{.InterfaceName}}"
+filename: "{{.InterfaceName | snakecase}}.go"
+outpkg: mocks
+all: True
+disable-version-string: True
+packages:
+  github.com/littlebugger/tinode4chat/internal/service/usecase:
+    interfaces:
+      ChatRoomRepository:
+      MessageRepository:
+      UserRepository:
