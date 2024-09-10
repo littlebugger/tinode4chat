@@ -1,0 +1,70 @@
+openapi: 3.0.0
+info:
+  title: Real-Time Chat API - ChatRoom Module
+  version: 1.0.0
+paths:
+  /rooms:
+    get:
+      summary: List available chat rooms
+      operationId: listChatRooms
+      responses:
+        '200':
+          description: List of chat rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatRoom'
+    post:
+      summary: Create a new chat room
+      operationId: createChatRoom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRoomCreate'
+      responses:
+        '200':
+          description: Chat room created successfully
+  /rooms/{id}/join:
+    post:
+      summary: Join a chat room
+      operationId: joinChatRoom
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Joined room successfully
+  /rooms/{id}/leave:
+    post:
+      summary: Leave a chat room
+      operationId: leaveChatRoom
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Left room successfully
+components:
+  schemas:
+    ChatRoom:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    ChatRoomCreate:
+      type: object
+      properties:
+        name:
+          type: string

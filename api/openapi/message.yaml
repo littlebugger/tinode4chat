@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: Real-Time Chat API - Message Module
+  version: 1.0.0
+paths:
+  /rooms/{id}/messages:
+    get:
+      summary: Get chat room messages
+      operationId: getChatRoomMessages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+    post:
+      summary: Send a message to a chat room
+      operationId: sendMessageToChatRoom
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '200':
+          description: Message sent successfully
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        author:
+          type: string
+        content:
+          type: string
+        timestamp:
+          type: string
+    MessageCreate:
+      type: object
+      properties:
+        content:
+          type: string
