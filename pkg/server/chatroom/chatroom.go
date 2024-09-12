@@ -6,9 +6,7 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,7 +16,10 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
-	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
+)
+
+const (
+	BearerScopes = "Bearer.Scopes"
 )
 
 // ChatRoom defines model for ChatRoom.
@@ -29,7 +30,7 @@ type ChatRoom struct {
 
 // ChatRoomCreate defines model for ChatRoomCreate.
 type ChatRoomCreate struct {
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 }
 
 // CreateChatRoomJSONRequestBody defines body for CreateChatRoom for application/json ContentType.
@@ -60,6 +61,8 @@ type ServerInterfaceWrapper struct {
 func (w *ServerInterfaceWrapper) ListChatRooms(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(BearerScopes, []string{"email:w"})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ListChatRooms(ctx)
 	return err
@@ -68,6 +71,8 @@ func (w *ServerInterfaceWrapper) ListChatRooms(ctx echo.Context) error {
 // CreateChatRoom converts echo context to params.
 func (w *ServerInterfaceWrapper) CreateChatRoom(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(BearerScopes, []string{"email:w"})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.CreateChatRoom(ctx)
@@ -85,6 +90,8 @@ func (w *ServerInterfaceWrapper) JoinChatRoom(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	ctx.Set(BearerScopes, []string{"email:w"})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.JoinChatRoom(ctx, id)
 	return err
@@ -100,6 +107,8 @@ func (w *ServerInterfaceWrapper) LeaveChatRoom(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(BearerScopes, []string{"email:w"})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.LeaveChatRoom(ctx, id)
@@ -141,211 +150,18 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 }
 
-type ListChatRoomsRequestObject struct {
-}
-
-type ListChatRoomsResponseObject interface {
-	VisitListChatRoomsResponse(w http.ResponseWriter) error
-}
-
-type ListChatRooms200JSONResponse []ChatRoom
-
-func (response ListChatRooms200JSONResponse) VisitListChatRoomsResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type CreateChatRoomRequestObject struct {
-	Body *CreateChatRoomJSONRequestBody
-}
-
-type CreateChatRoomResponseObject interface {
-	VisitCreateChatRoomResponse(w http.ResponseWriter) error
-}
-
-type CreateChatRoom200Response struct {
-}
-
-func (response CreateChatRoom200Response) VisitCreateChatRoomResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-type JoinChatRoomRequestObject struct {
-	Id string `json:"id"`
-}
-
-type JoinChatRoomResponseObject interface {
-	VisitJoinChatRoomResponse(w http.ResponseWriter) error
-}
-
-type JoinChatRoom200Response struct {
-}
-
-func (response JoinChatRoom200Response) VisitJoinChatRoomResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-type LeaveChatRoomRequestObject struct {
-	Id string `json:"id"`
-}
-
-type LeaveChatRoomResponseObject interface {
-	VisitLeaveChatRoomResponse(w http.ResponseWriter) error
-}
-
-type LeaveChatRoom200Response struct {
-}
-
-func (response LeaveChatRoom200Response) VisitLeaveChatRoomResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-// StrictServerInterface represents all server handlers.
-type StrictServerInterface interface {
-	// List available chat rooms
-	// (GET /rooms)
-	ListChatRooms(ctx context.Context, request ListChatRoomsRequestObject) (ListChatRoomsResponseObject, error)
-	// Create a new chat room
-	// (POST /rooms)
-	CreateChatRoom(ctx context.Context, request CreateChatRoomRequestObject) (CreateChatRoomResponseObject, error)
-	// Join a chat room
-	// (POST /rooms/{id}/join)
-	JoinChatRoom(ctx context.Context, request JoinChatRoomRequestObject) (JoinChatRoomResponseObject, error)
-	// Leave a chat room
-	// (POST /rooms/{id}/leave)
-	LeaveChatRoom(ctx context.Context, request LeaveChatRoomRequestObject) (LeaveChatRoomResponseObject, error)
-}
-
-type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
-type StrictMiddlewareFunc = strictecho.StrictEchoMiddlewareFunc
-
-func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
-	return &strictHandler{ssi: ssi, middlewares: middlewares}
-}
-
-type strictHandler struct {
-	ssi         StrictServerInterface
-	middlewares []StrictMiddlewareFunc
-}
-
-// ListChatRooms operation middleware
-func (sh *strictHandler) ListChatRooms(ctx echo.Context) error {
-	var request ListChatRoomsRequestObject
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ListChatRooms(ctx.Request().Context(), request.(ListChatRoomsRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ListChatRooms")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ListChatRoomsResponseObject); ok {
-		return validResponse.VisitListChatRoomsResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// CreateChatRoom operation middleware
-func (sh *strictHandler) CreateChatRoom(ctx echo.Context) error {
-	var request CreateChatRoomRequestObject
-
-	var body CreateChatRoomJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.CreateChatRoom(ctx.Request().Context(), request.(CreateChatRoomRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CreateChatRoom")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(CreateChatRoomResponseObject); ok {
-		return validResponse.VisitCreateChatRoomResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// JoinChatRoom operation middleware
-func (sh *strictHandler) JoinChatRoom(ctx echo.Context, id string) error {
-	var request JoinChatRoomRequestObject
-
-	request.Id = id
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.JoinChatRoom(ctx.Request().Context(), request.(JoinChatRoomRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "JoinChatRoom")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(JoinChatRoomResponseObject); ok {
-		return validResponse.VisitJoinChatRoomResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// LeaveChatRoom operation middleware
-func (sh *strictHandler) LeaveChatRoom(ctx echo.Context, id string) error {
-	var request LeaveChatRoomRequestObject
-
-	request.Id = id
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.LeaveChatRoom(ctx.Request().Context(), request.(LeaveChatRoomRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "LeaveChatRoom")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(LeaveChatRoomResponseObject); ok {
-		return validResponse.VisitLeaveChatRoomResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8STQW/UMBCF/4o1cEybBW65wZ6KFglV3BCHqTPpepV4jD1ZFK3y39HYTbddlrKcekks",
-	"e+z3vjf2ASwPgT15SdAcINktDZiH6y3KLfOg4xA5UBRHecW1+pUpEDSQJDp/D3MFHgc6szBXywzf7ciK",
-	"li5nryOh0J8KFx+lU853nIud9Lp2S9hffXMDGZUxH7/emCuzKJov3I49QQV7ismxhwbeXa+uV2qLA3kM",
-	"Dhr4kKcqCCjb7KiOzEMe3ZPoT+2iOPY3LTSwcUkWiQQVREqBfSo071cr/Vn2Qj5vxhB6Z/P2epfUxBJ9",
-	"zleoSL2N1EEDb+pjk+qHDtWP7TmGgjHiVDJpKdnoghRAdWe4M1bzKCBalMZhwDgtBbhH1+NdT8/qKgic",
-	"zhCX1j26UOSfIyX5xO30X7SXQD7ck4ymOi5SC43EkebzWT/nXy88xuaDWpNGaymlbuz76SSLomXQePp1",
-	"TCIXlUtQH1w71zt2GeR8Op/Z+SfZBIw4kFBM0Hw/gO7MVwuWV6Nv6hStehLS6UP4cQm2mqC2gL8ArGUG",
-	"X0DtCff0d9aNLr867IY6+SdqtnrCOs+/AwAA///Z5BbuBQUAAA==",
+	"H4sIAAAAAAAC/8SUS2/bMAzHv4rA7ejW2XbzrS0woEUHDF2BHYIcGJtpFFiPSXQKI/B3HyjVeTUZugew",
+	"S6yYEsn/j39rA7Uz3lmyHKHaQKyXZDAtb5bID84ZWfvgPAXWlCK6kV/uPUEFkYO2TzAUYNHQicBQjG/c",
+	"fEU1y9Yx900gZHpd4XyqQD86HaiBapp3zV6lHwqIVHdBcw/VdAPXhIHCVcdLqKazYbYLfxO1ueL+pg3M",
+	"07/PLhhkqODu+yMUmY0UylHYFl4yexikrrYLl/rW3ErkgbC9eNSGlChWV19v1YUaxasvrulaggLWFKJ2",
+	"Fir4cDm5nAgh58mi11DBp/SqAI+8TK2WwTmTVk/E8hByyNrZ2wYquNeRxxIRhFj0zsYs8+NkIo/aWSab",
+	"DqP3ra7T8XIVpYnRBWnUTLnU+0ALqOBdufNL+WKWcuuU3agxBOwzk4ZiHbTnLFC6U26hauGRhZwZmEyY",
+	"DOq2eoY8tc4YDP2YBNeoW5y3dJCrAO/iCSrZadtOs5Eo8rVr+t8i8hYQL7YeDg3LoaPh9DwOGd2MelSd",
+	"EjUqdnVNMS66tu3/gFfuR6Gy9LyjlRJlM5Ub3Qzlyukk9jTBO6ftHj+PAQ0xhZh6kJPJojBeBHJNHMsv",
+	"9kAef9uzt6CRJqjJcP4SiqRS+AscLeGazvO4l/B/B3JPC/4nOJKcIx7D8DMAAP//0MCDNSAGAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

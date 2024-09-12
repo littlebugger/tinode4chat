@@ -6,24 +6,24 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
-	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
+)
+
+const (
+	BearerScopes = "Bearer.Scopes"
 )
 
 // UserLogin defines model for UserLogin.
 type UserLogin struct {
-	Email    *string `json:"email,omitempty"`
-	Password *string `json:"password,omitempty"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // UserProfile defines model for UserProfile.
@@ -34,9 +34,9 @@ type UserProfile struct {
 
 // UserSignup defines model for UserSignup.
 type UserSignup struct {
-	Email    *string `json:"email,omitempty"`
-	Password *string `json:"password,omitempty"`
-	Username *string `json:"username,omitempty"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Username string `json:"username"`
 }
 
 // LoginUserJSONRequestBody defines body for LoginUser for application/json ContentType.
@@ -75,6 +75,8 @@ func (w *ServerInterfaceWrapper) LoginUser(ctx echo.Context) error {
 // GetUserProfile converts echo context to params.
 func (w *ServerInterfaceWrapper) GetUserProfile(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(BearerScopes, []string{"email:w"})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetUserProfile(ctx)
@@ -124,174 +126,18 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 }
 
-type LoginUserRequestObject struct {
-	Body *LoginUserJSONRequestBody
-}
-
-type LoginUserResponseObject interface {
-	VisitLoginUserResponse(w http.ResponseWriter) error
-}
-
-type LoginUser200JSONResponse struct {
-	Token *string `json:"token,omitempty"`
-}
-
-func (response LoginUser200JSONResponse) VisitLoginUserResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GetUserProfileRequestObject struct {
-}
-
-type GetUserProfileResponseObject interface {
-	VisitGetUserProfileResponse(w http.ResponseWriter) error
-}
-
-type GetUserProfile200JSONResponse UserProfile
-
-func (response GetUserProfile200JSONResponse) VisitGetUserProfileResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SignupUserRequestObject struct {
-	Body *SignupUserJSONRequestBody
-}
-
-type SignupUserResponseObject interface {
-	VisitSignupUserResponse(w http.ResponseWriter) error
-}
-
-type SignupUser200Response struct {
-}
-
-func (response SignupUser200Response) VisitSignupUserResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-// StrictServerInterface represents all server handlers.
-type StrictServerInterface interface {
-	// Log in a user
-	// (POST /login)
-	LoginUser(ctx context.Context, request LoginUserRequestObject) (LoginUserResponseObject, error)
-	// Get user profile
-	// (GET /profile)
-	GetUserProfile(ctx context.Context, request GetUserProfileRequestObject) (GetUserProfileResponseObject, error)
-	// Register a new user
-	// (POST /signup)
-	SignupUser(ctx context.Context, request SignupUserRequestObject) (SignupUserResponseObject, error)
-}
-
-type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
-type StrictMiddlewareFunc = strictecho.StrictEchoMiddlewareFunc
-
-func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
-	return &strictHandler{ssi: ssi, middlewares: middlewares}
-}
-
-type strictHandler struct {
-	ssi         StrictServerInterface
-	middlewares []StrictMiddlewareFunc
-}
-
-// LoginUser operation middleware
-func (sh *strictHandler) LoginUser(ctx echo.Context) error {
-	var request LoginUserRequestObject
-
-	var body LoginUserJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.LoginUser(ctx.Request().Context(), request.(LoginUserRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "LoginUser")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(LoginUserResponseObject); ok {
-		return validResponse.VisitLoginUserResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GetUserProfile operation middleware
-func (sh *strictHandler) GetUserProfile(ctx echo.Context) error {
-	var request GetUserProfileRequestObject
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GetUserProfile(ctx.Request().Context(), request.(GetUserProfileRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetUserProfile")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GetUserProfileResponseObject); ok {
-		return validResponse.VisitGetUserProfileResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SignupUser operation middleware
-func (sh *strictHandler) SignupUser(ctx echo.Context) error {
-	var request SignupUserRequestObject
-
-	var body SignupUserJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SignupUser(ctx.Request().Context(), request.(SignupUserRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SignupUser")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SignupUserResponseObject); ok {
-		return validResponse.VisitSignupUserResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/7RTX28TMQz/KpHhsdsVeLs34GEaAmkaQzyHnHvNuLOD7TBVU787Sq7lxnQSq2BPTR37",
-	"fv79yT0EHhMTkim096Bhi6Ovxy+K8pH7SOVPEk4oFrFe4ejjUA62SwgtqEmkHvYrSF71jqVbuNyvjhX+",
-	"dovBSnvBuBLexAFPQcmKQn7EE1A+x55y+k9UTtyglCJtuDZHK1zhGv1wdhNHdO+33tzbq0t35sqi7hN3",
-	"eUBYwU8UjUzQwqvz9fm6wHJC8ilCC29qqWxp20qkGX57xWrlt9D0FpkuO2ihWlkAYAWCPzKqveNuVxoD",
-	"kyHVGZ/SEEOdam6Vac5EOb0U3EALL5o5NM0hMc0cl8q3QETBDlqTjLWgiUkn1V+v1ycB/+mZ8XekJyvf",
-	"oQaJySYp64pOcwiousnDyglaFlL34euNm75cpjSPo5fdNOEiOe+K5/WuSXNke1zQ+gLtYbL/kfzfVD/C",
-	"LLCtgTps6zpv/hG3C7RK69gz0dP5rSxGaXpLz5ylw4N9epgWmAdBb9g9sHvYPVLgGvuohuK8I7w7erzf",
-	"/woAAP//ccWMlhkFAAA=",
+	"H4sIAAAAAAAC/7SUwW7bMAyGX0XgdnTrbLvp1g5Y0WIDirZDD0UPqs0k6mxJI6kFQeB3HyQlcTp4a4tt",
+	"J8uSKfL/+dEbaHwfvEMnDHoD3CyxN3n5lZE++4V16SWQD0hiMR9hb2yXFrIOCBpYyLoFDBUEw7zy1E4c",
+	"DhUQfo+WsAV9t73jIOK+2kX4h0dsJF2XargkP7cdvqaKyEjO9DhdxWSWa7twMfwjqc9VMOXDPuKPlgwV",
+	"MDaRrKxB323gFA0hnURZgr67H+7H4+vUyaLh8KMNPOS3T556I6Dh4vYGqtL3lKicwj7xUiTAkPJaN/dZ",
+	"jpXUDbhC0x3d2B7Vx6URdXJ5ro5UslJ98W3skpAfSGy9Aw3vjmfHs2SMD+hMsKDhQ95KamWZy6y7PW2e",
+	"JT1TI4xY785b0JBhTAmgOIgsp75dpw8b7wRdjjEhdLbJUfUjezdSnVZvCeeg4U09Yl9vma9H4IenTRKK",
+	"mDc4eMfF0/ez2asSP6VK/Dd0L6IzbbXIDdkgxcpcouLYNMg8j12lCCWSY3Vxe6PKzZmT2PeG1iVCWaeM",
+	"SozlszqMQ7XACa/PUA5n7y/FP+f6Ls2E2gzUtlrVGjG/m4H9LOkVlEHY6z9DydJ39xQLeJz4SdzKH+E/",
+	"87b97bwcuAl3GkIj2B4g0a1/IeAKF5YFSRnlcLXjYBh+BgAA///gS/10/wUAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -7,6 +7,9 @@ paths:
     get:
       summary: Get chat room messages
       operationId: getChatRoomMessages
+      security:
+        - Bearer:
+            - "email:w"
       parameters:
         - name: id
           in: path
@@ -25,6 +28,9 @@ paths:
     post:
       summary: Send a message to a chat room
       operationId: sendMessageToChatRoom
+      security:
+        - Bearer:
+            - "email:w"
       parameters:
         - name: id
           in: path
@@ -53,6 +59,15 @@ components:
           type: string
     MessageCreate:
       type: object
+      required:
+        - content
       properties:
         content:
           type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  security:
+    - BearerAuth: [ ]

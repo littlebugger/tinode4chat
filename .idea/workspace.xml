@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6ec82768-571b-4a1c-ae13-67bcb5edb695" name="Changes" comment="Add JWT middleware and error handling&#10;&#10;Implemented JWT-based authentication middleware with error handling in &quot;pkg/auth/jwt.go&quot;. Enhanced Docker setup and configurations, added new dependencies, and organized error variables in &quot;internal/service/entity/errors.go&quot;.">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.tmp/env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/entity/errors.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/entity/jwt.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/handlers/chatroom.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/handlers/message.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/handlers/user.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/auth/jwt.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/docker-compose.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mockery.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.mockery.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/openapi/chatroom.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/chatroom.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/openapi/message.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/message.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/openapi/user.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/user.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/oapi-codegen.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/oapi-codegen.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/entity/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/chatroom.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/entity/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/message.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/entity/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/repository/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/chatroom.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/repository/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/message.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/repository/mongo.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/mongo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/repository/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/message.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/chat_room_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/chat_room_repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/message_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/message_repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/user_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/user_repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/usecase/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/chatroom/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/chatroom/chatroom.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/message/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/message/message.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/user/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/user/user.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="OpenAPI" />
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.22.6.darwin-arm64" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2ltRuqehRlnRJWxBsykOLuKoQF5" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build github.com/littlebugger/tinode4chat/cmd/server.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "Shell Script.oapi-codegen.sh.executor": "Run",
+    "git-widget-placeholder": "feat/init-project-with-models-and-openapi",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/Users/revolee/glamlabs/tinode4chat",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/service/repository" />
+      <recent name="$PROJECT_DIR$/pkg/db" />
+      <recent name="$PROJECT_DIR$/api/openapi" />
+      <recent name="$PROJECT_DIR$/internal/tinode4chat" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build github.com/littlebugger/tinode4chat/cmd/server">
+    <configuration name="go build github.com/littlebugger/tinode4chat/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="tinode4chat" />
+      <working_directory value="$PROJECT_DIR$" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH=".tmp/env" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="PACKAGE" />
+      <package value="github.com/littlebugger/tinode4chat/cmd/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="oapi-codegen.sh" type="ShConfigurationType" temporary="true">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/scripts/oapi-codegen.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.go build github.com/littlebugger/tinode4chat/cmd/server" />
+      <item itemvalue="Shell Script.oapi-codegen.sh" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build github.com/littlebugger/tinode4chat/cmd/server" />
+        <item itemvalue="Shell Script.oapi-codegen.sh" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-5df93f7ad4aa-df9ad98b711f-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.21829.220" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-GO-242.21829.220" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add initial project setup with Docker and Go modules&#10;&#10;This commit introduces the initial project setup, including configuration files and main code architecture. It includes Dockerfile for containerization, docker-compose.yaml for service orchestration, go.mod and go.sum for dependency management, and several supporting configuration files." />
+    <MESSAGE value="Add JWT middleware and error handling&#10;&#10;Implemented JWT-based authentication middleware with error handling in &quot;pkg/auth/jwt.go&quot;. Enhanced Docker setup and configurations, added new dependencies, and organized error variables in &quot;internal/service/entity/errors.go&quot;." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add JWT middleware and error handling&#10;&#10;Implemented JWT-based authentication middleware with error handling in &quot;pkg/auth/jwt.go&quot;. Enhanced Docker setup and configurations, added new dependencies, and organized error variables in &quot;internal/service/entity/errors.go&quot;." />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/service/repository/user.go</url>
+          <line>77</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
