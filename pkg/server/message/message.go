@@ -6,9 +6,7 @@ package api
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,7 +16,10 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/runtime"
-	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
+)
+
+const (
+	BearerScopes = "Bearer.Scopes"
 )
 
 // Message defines model for Message.
@@ -30,7 +31,7 @@ type Message struct {
 
 // MessageCreate defines model for MessageCreate.
 type MessageCreate struct {
-	Content *string `json:"content,omitempty"`
+	Content string `json:"content"`
 }
 
 // SendMessageToChatRoomJSONRequestBody defines body for SendMessageToChatRoom for application/json ContentType.
@@ -62,6 +63,8 @@ func (w *ServerInterfaceWrapper) GetChatRoomMessages(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
 
+	ctx.Set(BearerScopes, []string{"email:w"})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetChatRoomMessages(ctx, id)
 	return err
@@ -77,6 +80,8 @@ func (w *ServerInterfaceWrapper) SendMessageToChatRoom(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
+	ctx.Set(BearerScopes, []string{"email:w"})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SendMessageToChatRoom(ctx, id)
@@ -116,129 +121,18 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 }
 
-type GetChatRoomMessagesRequestObject struct {
-	Id string `json:"id"`
-}
-
-type GetChatRoomMessagesResponseObject interface {
-	VisitGetChatRoomMessagesResponse(w http.ResponseWriter) error
-}
-
-type GetChatRoomMessages200JSONResponse []Message
-
-func (response GetChatRoomMessages200JSONResponse) VisitGetChatRoomMessagesResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SendMessageToChatRoomRequestObject struct {
-	Id   string `json:"id"`
-	Body *SendMessageToChatRoomJSONRequestBody
-}
-
-type SendMessageToChatRoomResponseObject interface {
-	VisitSendMessageToChatRoomResponse(w http.ResponseWriter) error
-}
-
-type SendMessageToChatRoom200Response struct {
-}
-
-func (response SendMessageToChatRoom200Response) VisitSendMessageToChatRoomResponse(w http.ResponseWriter) error {
-	w.WriteHeader(200)
-	return nil
-}
-
-// StrictServerInterface represents all server handlers.
-type StrictServerInterface interface {
-	// Get chat room messages
-	// (GET /rooms/{id}/messages)
-	GetChatRoomMessages(ctx context.Context, request GetChatRoomMessagesRequestObject) (GetChatRoomMessagesResponseObject, error)
-	// Send a message to a chat room
-	// (POST /rooms/{id}/messages)
-	SendMessageToChatRoom(ctx context.Context, request SendMessageToChatRoomRequestObject) (SendMessageToChatRoomResponseObject, error)
-}
-
-type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
-type StrictMiddlewareFunc = strictecho.StrictEchoMiddlewareFunc
-
-func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareFunc) ServerInterface {
-	return &strictHandler{ssi: ssi, middlewares: middlewares}
-}
-
-type strictHandler struct {
-	ssi         StrictServerInterface
-	middlewares []StrictMiddlewareFunc
-}
-
-// GetChatRoomMessages operation middleware
-func (sh *strictHandler) GetChatRoomMessages(ctx echo.Context, id string) error {
-	var request GetChatRoomMessagesRequestObject
-
-	request.Id = id
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GetChatRoomMessages(ctx.Request().Context(), request.(GetChatRoomMessagesRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GetChatRoomMessages")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GetChatRoomMessagesResponseObject); ok {
-		return validResponse.VisitGetChatRoomMessagesResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SendMessageToChatRoom operation middleware
-func (sh *strictHandler) SendMessageToChatRoom(ctx echo.Context, id string) error {
-	var request SendMessageToChatRoomRequestObject
-
-	request.Id = id
-
-	var body SendMessageToChatRoomJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SendMessageToChatRoom(ctx.Request().Context(), request.(SendMessageToChatRoomRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SendMessageToChatRoom")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SendMessageToChatRoomResponseObject); ok {
-		return validResponse.VisitSendMessageToChatRoomResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/7SSQW/UQAyF/8rIcEybBW65QQ+oEiuh0hviYBLv7lSZ8XTsIEXR/nfkScK2JUhw4Day",
-	"X/xePnuClkPiSFEFmgmkPVHA8tyTCB7JnilzoqyeSgMHPXG2l46JoAHR7OMRzhW0HJWibvbUBxLFkDa6",
-	"1p4r/P2BWjX94n+TCXUjxZ+tfh9mJR8PXMRee+vdEfZX9z6Quzmhuvefb92VWzzdnruhJ6jgB2XxHKGB",
-	"N9e7653l4kQRk4cG3pVSBQn1VDLVmTlIPfnuXId5VKkfqeS0+Kie420HDXwkNec75rBftTYrYyClLNB8",
-	"ncCbtc2HCiIGC+47qCDT4+AzddBoHqha9rYF45uJJXGUOcvb3e4FPkyp920JVj+I/ez0ZJ5XCuXD15kO",
-	"0MCr+nIx9XIu9XorF/SYM44z+Y6kzT7pzPGTF3V8cL/4mESGEDCPMxXX2kIM5RNRBYllg+IXit3ifs8r",
-	"z//G8XEg0Q/cjf+E8C/ILVdeeD3PdN7e33Oo690KRXUytC2JHIa+H1/QNVoOV6xO2eGFtrmffwYAAP//",
-	"zlGiHxEEAAA=",
+	"H4sIAAAAAAAC/7STT2/UMBDFv4o1cEybBW6+tZVARVRC7UocVntwk9mNq9jj2hNQFOW7o3GyfwqpBEjc",
+	"vJ7ZeS+/eR6gIhfIo+cEeoBUNehMPt5hSmaPcgyRAka2mAum44ainLgPCBoSR+v3MBZQkWf0vFhj6zCx",
+	"cWGhKuXphh6fsGLpn/VvIhpecPG61FhAxOfORqxBb46N2980xgISVl203IPeDHCNJmK86rgBvdmO21P5",
+	"QbBMuudNAzzmXx8pOsOg4fO3NRQTRBGaqnAUbpgDjKJr/Y6ydcutVO7RtBdr61DdNIbV1ddbdaFmAuqO",
+	"6q5FKOA7xmTJg4Z3l6vLlVCigN4ECxo+5KsCguEmOy0jkUvlYOuxdNOofL/HTE1gGrbkb2vQ8AlZlO+J",
+	"3N2hV2ZF45AxpgzIirTMhwK8yZ9oazjHzbHDGYBZWs1WmlMgnyYv71erX5ZpQmhtlY2VT0k+djibZxld",
+	"/uPbiDvQ8KY85becw1sekntKlYnR9BP5GlMVbeCJ4xebWNFOHfm8EgoJEjpjW/0DpmR0zpnYT+RUJUsT",
+	"3GeDCgiUFkg/oK9nh2s6MP9vrJ87THxNdf9XmP+A7vwux5fPTTyNyzt+Cf6Q7YSeVeqqClPadW3b/8MG",
+	"hKgyB/SKSZnTRsTh+DMAAP//L52wTOcEAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

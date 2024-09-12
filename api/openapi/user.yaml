@@ -40,6 +40,9 @@ paths:
     get:
       summary: Get user profile
       operationId: getUserProfile
+      security:
+        - Bearer:
+            - "email:w"
       responses:
         '200':
           description: User profile data
@@ -51,6 +54,10 @@ components:
   schemas:
     UserSignup:
       type: object
+      required:
+        - email
+        - username
+        - password
       properties:
         email:
           type: string
@@ -60,6 +67,9 @@ components:
           type: string
     UserLogin:
       type: object
+      required:
+        - email
+        - password
       properties:
         email:
           type: string
@@ -72,3 +82,10 @@ components:
           type: string
         username:
           type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  security:
+    - BearerAuth: [ ]

@@ -13,14 +13,18 @@ services:
       - mongo-data:/data/db
 
   app:
-    build: .
-    container_name: service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tinode4chat
     ports:
       - "8080:8080"
     environment:
       - MONGO_URL=mongodb://root:example@mongo:27017
     depends_on:
       - mongo
+    volumes:
+      - .:/app
 
 volumes:
   mongo-data:

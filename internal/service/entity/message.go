@@ -1,11 +1,15 @@
 package entity
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+)
+
+type MessageID = string
 
 type Message struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty"`
-	Content    string             `bson:"content"`
-	Author     primitive.ObjectID `bson:"author"`
-	ChatRoomID primitive.ObjectID `bson:"chatRoomID"`
-	Timestamp  primitive.DateTime `bson:"timestamp"`
+	ID         MessageID  `bson:"_id,omitempty"`
+	Content    string     `bson:"content"`
+	Author     UserID     `bson:"author"`
+	ChatRoomID ChatRoomID `bson:"chatRoomID"`
+	Timestamp  time.Time  `bson:"timestamp"`
 }

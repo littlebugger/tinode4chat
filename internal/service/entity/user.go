@@ -1,11 +1,15 @@
 package entity
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+type UserID = string
 
 type User struct {
-	ID          primitive.ObjectID   `bson:"_id,omitempty"`
-	Email       string               `bson:"email"`
-	Username    string               `bson:"username"`
-	Password    string               `bson:"password"`
-	JoinedRooms []primitive.ObjectID `bson:"joinedRooms,omitempty"`
+	ID          UserID      `bson:"_id,omitempty"`
+	Email       string      `bson:"email"`
+	Username    string      `bson:"username"`
+	Password    string      `bson:"password"`
+	JoinedRooms []MessageID `bson:"joinedRooms,omitempty"`
+}
+
+func (u User) Valid() bool {
+	return u.Email != "" && u.Username != "" && u.Password != ""
 }

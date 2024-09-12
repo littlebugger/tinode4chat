@@ -2,37 +2,68 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/littlebugger/tinode4chat/internal/service/repository"
 	"log"
-	"time"
+	"net/http"
+	"os"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/littlebugger/tinode4chat/internal/service/handlers"
+	"github.com/littlebugger/tinode4chat/internal/service/usecase"
+	chatroom "github.com/littlebugger/tinode4chat/pkg/server/chatroom"
+	message "github.com/littlebugger/tinode4chat/pkg/server/message"
+	user "github.com/littlebugger/tinode4chat/pkg/server/user"
 )
 
-var MongoClient *mongo.Client
+func main() {
+	ctx := context.Background()
 
-func ConnectToMongoDB() {
-	mongoURL := "mongodb://root:example@mongo:27017" // Adjust if using different credentials or URL
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	// Get the MongoDB URL from environment variables
+	mongoURI := os.Getenv("MONGO_URL")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URL environment variable is required")
+	}
 
-	clientOptions := options.Client().ApplyURI(mongoURL)
-	client, err := mongo.Connect(ctx, clientOptions)
+	dbName := "chat_app"
+
+	// Create a MongoRepository instance by connecting to MongoDB
+	repo, err := repository.ConnectToMongo(ctx, mongoURI, dbName)
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		log.Fatalf("Failed to ping MongoDB: %v", err)
+	// Ensure MongoDB connection is closed on exit
+	defer func() {
+		if err := repo.CloseMongoConnection(ctx); err != nil {
+			log.Fatalf("Error closing MongoDB connection: %v", err)
+		}
+	}()
+
+	// Set Up UseCases
+	userUC := usecase.NewUserUseCase(repo)
+	chatroomUC := usecase.NewChatRoomUseCase(repo)
+	messageUC := usecase.NewMessageUseCase(repo)
+
+	// Set up Echo
+	e := echo.New()
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// Initialize handlers and register routes
+	userHandler := handlers.NewUserHandler(userUC)
+	user.RegisterHandlers(e, userHandler) // This binds the generated routes with our handlers
+
+	chatroomHandler := handlers.NewChatRoomHandler(chatroomUC)
+	chatroom.RegisterHandlers(e, chatroomHandler)
+
+	messageHandler := handlers.NewMessageHandler(messageUC)
+	message.RegisterHandlers(e, messageHandler)
+
+	// Start the HTTP server
+	if err := e.Start(":8080"); err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
-
-	fmt.Println("Connected to MongoDB!")
-	MongoClient = client
-}
-
-func main() {
-	ConnectToMongoDB()
-	// Further setup like starting the HTTP server, etc.
 }
