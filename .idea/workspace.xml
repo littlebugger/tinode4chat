@@ -5,43 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ec82768-571b-4a1c-ae13-67bcb5edb695" name="Changes" comment="Add JWT middleware and error handling&#10;&#10;Implemented JWT-based authentication middleware with error handling in &quot;pkg/auth/jwt.go&quot;. Enhanced Docker setup and configurations, added new dependencies, and organized error variables in &quot;internal/service/entity/errors.go&quot;.">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.tmp/env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/service/entity/errors.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/service/entity/jwt.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/service/handlers/chatroom.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/service/handlers/message.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/service/handlers/user.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/auth/jwt.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/docker-compose.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.mongodb-keyfile/mongo-keyfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/entity/mongo.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/entity/user_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/service/usecase/chatroom_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/tinode/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/init-mongo-keyfile.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/init-mongo.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.mockery.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.mockery.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/openapi/chatroom.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/chatroom.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/openapi/message.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/message.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/openapi/user.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/api/openapi/user.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/oapi-codegen.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/oapi-codegen.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/entity/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/chatroom.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/entity/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/message.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/entity/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/repository/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/chatroom.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/repository/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/message.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/repository/mongo.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/mongo.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/service/entity/errors.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/errors.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/repository/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/repository/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/usecase/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/message.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/chat_room_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/chat_room_repository.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/message_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/message_repository.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/usecase/mocks/user_repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/mocks/user_repository.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/service/usecase/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/server/chatroom/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/chatroom/chatroom.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/server/message/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/message/message.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/server/user/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/user/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/auth/jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/auth/jwt.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,25 +53,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go Build.go build github.com/littlebugger/tinode4chat/cmd/server.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "Shell Script.oapi-codegen.sh.executor": "Run",
-    "git-widget-placeholder": "feat/init-project-with-models-and-openapi",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/Users/revolee/glamlabs/tinode4chat",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build github.com/littlebugger/tinode4chat/cmd/server.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestUserValid in github.com/littlebugger/tinode4chat/internal/service/entity.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.go test github.com/littlebugger/tinode4chat/internal/service/usecase.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;Shell Script.oapi-codegen.sh.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/add-tinode-server-integration&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/revolee/glamlabs/tinode4chat&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -119,6 +106,29 @@
       <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
       <method v="2" />
     </configuration>
+    <configuration name="TestUserValid in github.com/littlebugger/tinode4chat/internal/service/entity" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="tinode4chat" />
+      <working_directory value="$PROJECT_DIR$/internal/service/entity" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/littlebugger/tinode4chat/internal/service/entity" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestUserValid\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test github.com/littlebugger/tinode4chat/internal/service/usecase" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="tinode4chat" />
+      <working_directory value="$PROJECT_DIR$/internal/service/usecase" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/littlebugger/tinode4chat/internal/service/usecase" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
     <configuration name="oapi-codegen.sh" type="ShConfigurationType" temporary="true">
       <option name="SCRIPT_TEXT" value="" />
       <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
@@ -136,11 +146,15 @@
     </configuration>
     <list>
       <item itemvalue="Go Build.go build github.com/littlebugger/tinode4chat/cmd/server" />
+      <item itemvalue="Go Test.TestUserValid in github.com/littlebugger/tinode4chat/internal/service/entity" />
+      <item itemvalue="Go Test.go test github.com/littlebugger/tinode4chat/internal/service/usecase" />
       <item itemvalue="Shell Script.oapi-codegen.sh" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Go Build.go build github.com/littlebugger/tinode4chat/cmd/server" />
+        <item itemvalue="Go Test.go test github.com/littlebugger/tinode4chat/internal/service/usecase" />
+        <item itemvalue="Go Test.TestUserValid in github.com/littlebugger/tinode4chat/internal/service/entity" />
         <item itemvalue="Shell Script.oapi-codegen.sh" />
       </list>
     </recent_temporary>
@@ -164,16 +178,5 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/internal/service/repository/user.go</url>
-          <line>77</line>
-          <option name="timeStamp" value="44" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

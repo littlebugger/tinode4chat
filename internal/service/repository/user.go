@@ -47,6 +47,27 @@ func (repo *MongoRepository) GetUserByID(ctx context.Context, id entity.UserID) 
 	return &user, nil
 }
 
+func (repo *MongoRepository) GetUserEmailByID(ctx context.Context, userID entity.UserID) (string, error) {
+	collection := repo.GetCollection("users")
+
+	var user entity.User
+	objID, err := entity.ToObjectID(userID)
+	if err != nil {
+		return "", entity.ErrInvalidUserID
+	}
+
+	filter := bson.M{"_id": objID}
+	err = collection.FindOne(ctx, filter).Decode(&user)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return "", entity.ErrUserNotFound
+		}
+		return "", err
+	}
+
+	return user.Email, nil
+}
+
 // UpdateUser updates an existing user document
 func (repo *MongoRepository) UpdateUser(ctx context.Context, user entity.User) error {
 	collection := repo.GetCollection("users")

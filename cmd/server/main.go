@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/littlebugger/tinode4chat/internal/service/repository"
+	tinode "github.com/littlebugger/tinode4chat/pkg/tinode"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/littlebugger/tinode4chat/internal/service/handlers"
+	"github.com/littlebugger/tinode4chat/internal/service/repository"
 	"github.com/littlebugger/tinode4chat/internal/service/usecase"
 	chatroom "github.com/littlebugger/tinode4chat/pkg/server/chatroom"
 	message "github.com/littlebugger/tinode4chat/pkg/server/message"
@@ -41,10 +42,33 @@ func main() {
 		}
 	}()
 
+	// Get the Tinode server URL from environment variables or configuration
+	tinodeURL := os.Getenv("TINODE_URL")
+	if tinodeURL == "" {
+		tinodeURL = "tinode:6060" // Default to Docker Compose service name
+	}
+
+	// Initialize the Tinode client
+	tinodeClient := tinode.NewTinodeClient(tinodeURL)
+
+	// Establish the WebSocket connection
+	if err := tinodeClient.Connect(); err != nil {
+		log.Fatalf("Failed to connect to Tinode server: %v", err)
+	}
+	defer tinodeClient.Close()
+
+	// Login as admin
+	adminEmail := os.Getenv("TINODE_ADMIN_EMAIL")
+	adminPassword := os.Getenv("TINODE_ADMIN_PASSWORD")
+
+	if err := tinodeClient.Login(adminEmail, adminPassword); err != nil {
+		log.Fatalf("Failed to login to Tinode as admin: %v", err)
+	}
+
 	// Set Up UseCases
-	userUC := usecase.NewUserUseCase(repo)
-	chatroomUC := usecase.NewChatRoomUseCase(repo)
-	messageUC := usecase.NewMessageUseCase(repo)
+	userUC := usecase.NewUserUseCase(repo, tinodeClient)
+	chatroomUC := usecase.NewChatRoomUseCase(repo, tinodeClient)
+	messageUC := usecase.NewMessageUseCase(repo, tinodeClient)
 
 	// Set up Echo
 	e := echo.New()

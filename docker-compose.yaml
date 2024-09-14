@@ -1,7 +1,24 @@
 version: '3.8'
 
+networks:
+  app-network:
+    driver: bridge
+
+x-mongodb-tinode-env-vars: &mongodb-tinode-env-vars
+  STORE_USE_ADAPTER: mongodb
+  MONGO_URL: mongodb://root:example@mongodb:27017/tinode?authSource=admin&replicaSet=rs0
+  WAIT_FOR: mongodb:27017
+
+# Base Tinode template.
+x-tinode: &tinode-base
+  depends_on:
+    - mongodb
+    - initmongodb
+  image: tinode/tinode:latest
+  restart: always
+
 services:
-  mongo:
+  mongodb:
     image: mongo:6.0
     container_name: mongodb
     ports:
@@ -11,20 +28,60 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - mongo-data:/data/db
+      - ./.mongodb-keyfile/mongo-keyfile:/data/configdb/mongo-keyfile:ro
+      - ./scripts/init-mongo-keyfile.sh:/docker-entrypoint-initdb.d/init-mongo-keyfile.sh:ro
+    command: [ "bash", "/docker-entrypoint-initdb.d/init-mongo-keyfile.sh" ]
+    healthcheck:
+      test: [ "CMD", "curl -f http://localhost:28017/ || exit 1" ]
+    networks:
+      - app-network
+
+  # Initializes MongoDb replicaset.
+  initmongodb:
+    image: mongo:6.0
+    container_name: initdb
+    depends_on:
+      - mongodb
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: /scripts/init-mongo.sh
+    networks:
+      - app-network
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tinode4chat
+    container_name: app
     ports:
       - "8080:8080"
     environment:
-      - MONGO_URL=mongodb://root:example@mongo:27017
+      - MONGO_URL=mongodb://root:example@mongodb:27017
+      - TINODE_URL=ws://tinode:6060
+      # Todo: check how to safely inject secrets into env
+      - your_secret_key=your_secret_key
+      - TINODE_ADMIN_EMAIL=admin@example.com
+      - TINODE_ADMIN_PASSWORD=your_admin_password
     depends_on:
-      - mongo
-    volumes:
-      - .:/app
+      - mongodb
+      - tinode
+#    volumes:
+#      - .:/app
+    networks:
+      - app-network
+
+  tinode:
+    << : *tinode-base
+    container_name: tinode
+    hostname: tinode
+    ports:
+      - "6060:6060"  # For WebSocket connections
+      - "8000:8000"  # For REST API
+      - "8081:8080"  # Tinode web UI
+    environment:
+      <<: *mongodb-tinode-env-vars
+    networks:
+      - app-network
 
 volumes:
   mongo-data:

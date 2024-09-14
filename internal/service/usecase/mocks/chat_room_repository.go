@@ -70,29 +70,29 @@ func (_c *MockChatRoomRepository_AddUserToChatRoom_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// GetChatRoomByID provides a mock function with given fields: ctx, id
-func (_m *MockChatRoomRepository) GetChatRoomByID(ctx context.Context, id string) (*entity.ChatRoom, error) {
-	ret := _m.Called(ctx, id)
+// CreateChatRoom provides a mock function with given fields: ctx, room
+func (_m *MockChatRoomRepository) CreateChatRoom(ctx context.Context, room entity.ChatRoom) (*string, error) {
+	ret := _m.Called(ctx, room)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetChatRoomByID")
+		panic("no return value specified for CreateChatRoom")
 	}
 
-	var r0 *entity.ChatRoom
+	var r0 *string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*entity.ChatRoom, error)); ok {
-		return rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, entity.ChatRoom) (*string, error)); ok {
+		return rf(ctx, room)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *entity.ChatRoom); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, entity.ChatRoom) *string); ok {
+		r0 = rf(ctx, room)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entity.ChatRoom)
+			r0 = ret.Get(0).(*string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, id)
+	if rf, ok := ret.Get(1).(func(context.Context, entity.ChatRoom) error); ok {
+		r1 = rf(ctx, room)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -100,31 +100,146 @@ func (_m *MockChatRoomRepository) GetChatRoomByID(ctx context.Context, id string
 	return r0, r1
 }
 
-// MockChatRoomRepository_GetChatRoomByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetChatRoomByID'
-type MockChatRoomRepository_GetChatRoomByID_Call struct {
+// MockChatRoomRepository_CreateChatRoom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateChatRoom'
+type MockChatRoomRepository_CreateChatRoom_Call struct {
 	*mock.Call
 }
 
-// GetChatRoomByID is a helper method to define mock.On call
+// CreateChatRoom is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id string
-func (_e *MockChatRoomRepository_Expecter) GetChatRoomByID(ctx interface{}, id interface{}) *MockChatRoomRepository_GetChatRoomByID_Call {
-	return &MockChatRoomRepository_GetChatRoomByID_Call{Call: _e.mock.On("GetChatRoomByID", ctx, id)}
+//   - room entity.ChatRoom
+func (_e *MockChatRoomRepository_Expecter) CreateChatRoom(ctx interface{}, room interface{}) *MockChatRoomRepository_CreateChatRoom_Call {
+	return &MockChatRoomRepository_CreateChatRoom_Call{Call: _e.mock.On("CreateChatRoom", ctx, room)}
 }
 
-func (_c *MockChatRoomRepository_GetChatRoomByID_Call) Run(run func(ctx context.Context, id string)) *MockChatRoomRepository_GetChatRoomByID_Call {
+func (_c *MockChatRoomRepository_CreateChatRoom_Call) Run(run func(ctx context.Context, room entity.ChatRoom)) *MockChatRoomRepository_CreateChatRoom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(entity.ChatRoom))
+	})
+	return _c
+}
+
+func (_c *MockChatRoomRepository_CreateChatRoom_Call) Return(_a0 *string, _a1 error) *MockChatRoomRepository_CreateChatRoom_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockChatRoomRepository_CreateChatRoom_Call) RunAndReturn(run func(context.Context, entity.ChatRoom) (*string, error)) *MockChatRoomRepository_CreateChatRoom_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IsRoomExist provides a mock function with given fields: ctx, name
+func (_m *MockChatRoomRepository) IsRoomExist(ctx context.Context, name string) (bool, error) {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsRoomExist")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, name)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockChatRoomRepository_IsRoomExist_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsRoomExist'
+type MockChatRoomRepository_IsRoomExist_Call struct {
+	*mock.Call
+}
+
+// IsRoomExist is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+func (_e *MockChatRoomRepository_Expecter) IsRoomExist(ctx interface{}, name interface{}) *MockChatRoomRepository_IsRoomExist_Call {
+	return &MockChatRoomRepository_IsRoomExist_Call{Call: _e.mock.On("IsRoomExist", ctx, name)}
+}
+
+func (_c *MockChatRoomRepository_IsRoomExist_Call) Run(run func(ctx context.Context, name string)) *MockChatRoomRepository_IsRoomExist_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *MockChatRoomRepository_GetChatRoomByID_Call) Return(_a0 *entity.ChatRoom, _a1 error) *MockChatRoomRepository_GetChatRoomByID_Call {
+func (_c *MockChatRoomRepository_IsRoomExist_Call) Return(_a0 bool, _a1 error) *MockChatRoomRepository_IsRoomExist_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockChatRoomRepository_GetChatRoomByID_Call) RunAndReturn(run func(context.Context, string) (*entity.ChatRoom, error)) *MockChatRoomRepository_GetChatRoomByID_Call {
+func (_c *MockChatRoomRepository_IsRoomExist_Call) RunAndReturn(run func(context.Context, string) (bool, error)) *MockChatRoomRepository_IsRoomExist_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListChatRooms provides a mock function with given fields: ctx
+func (_m *MockChatRoomRepository) ListChatRooms(ctx context.Context) ([]entity.ChatRoom, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListChatRooms")
+	}
+
+	var r0 []entity.ChatRoom
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]entity.ChatRoom, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []entity.ChatRoom); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entity.ChatRoom)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockChatRoomRepository_ListChatRooms_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListChatRooms'
+type MockChatRoomRepository_ListChatRooms_Call struct {
+	*mock.Call
+}
+
+// ListChatRooms is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockChatRoomRepository_Expecter) ListChatRooms(ctx interface{}) *MockChatRoomRepository_ListChatRooms_Call {
+	return &MockChatRoomRepository_ListChatRooms_Call{Call: _e.mock.On("ListChatRooms", ctx)}
+}
+
+func (_c *MockChatRoomRepository_ListChatRooms_Call) Run(run func(ctx context.Context)) *MockChatRoomRepository_ListChatRooms_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockChatRoomRepository_ListChatRooms_Call) Return(_a0 []entity.ChatRoom, _a1 error) *MockChatRoomRepository_ListChatRooms_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockChatRoomRepository_ListChatRooms_Call) RunAndReturn(run func(context.Context) ([]entity.ChatRoom, error)) *MockChatRoomRepository_ListChatRooms_Call {
 	_c.Call.Return(run)
 	return _c
 }

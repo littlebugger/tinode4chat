@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/littlebugger/tinode4chat/internal/service/entity"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 // Secret key used for signing JWTs (in production, this should be in environment variables)
 // TODO: move to env config
-var jwtSecret = []byte("your_secret_key")
+var jwtSecret = os.Getenv("your_secret_key")
 
 var (
 	// Custom errors
