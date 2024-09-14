@@ -3,8 +3,10 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/labstack/gommon/log"
 	"github.com/littlebugger/tinode4chat/pkg/auth"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/littlebugger/tinode4chat/internal/service/entity"
@@ -17,13 +19,20 @@ type UserRepository interface {
 	UpdateUser(ctx context.Context, user entity.User) error
 }
 
-type UserService struct {
-	repo UserRepository
+type UserClient interface {
+	Register(email, password, fullName string) error
+	Login(email, password string) error
 }
 
-func NewUserUseCase(repo UserRepository) *UserService {
+type UserService struct {
+	repo       UserRepository
+	userClient UserClient
+}
+
+func NewUserUseCase(repo UserRepository, userClient UserClient) *UserService {
 	return &UserService{
-		repo: repo,
+		userClient: userClient,
+		repo:       repo,
 	}
 }
 
@@ -34,7 +43,7 @@ func (uc *UserService) CreateUser(ctx context.Context, user entity.User) (*entit
 	}
 
 	ext, err := uc.GetUserByEmail(ctx, user.Email)
-	if err != nil && !errors.Is(err, entity.ErrUserNotFound) {
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, err
 	}
 	if ext != nil {
@@ -44,6 +53,10 @@ func (uc *UserService) CreateUser(ctx context.Context, user entity.User) (*entit
 	user.Password, err = hashPassword(user.Password)
 	if err != nil {
 		return nil, entity.ErrCryptoFailed
+	}
+
+	if err := uc.userClient.Register(user.Email, user.Password, user.Username); err != nil {
+		return nil, fmt.Errorf("failed to register user with Tinode: %w", err)
 	}
 
 	return uc.repo.CreateUser(ctx, user)
@@ -71,6 +84,10 @@ func (uc *UserService) Login(ctx context.Context, email, password string) (*stri
 	// Compare the provided password with the stored hashed password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, entity.ErrInvalidCredentials
+	}
+
+	if err := uc.userClient.Login(email, password); err != nil {
+		return nil, fmt.Errorf("failed to login to Tinode: %w", err)
 	}
 
 	// Generate JWT token
