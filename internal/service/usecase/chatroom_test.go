@@ -37,7 +37,7 @@ func TestChatRoomUseCase_CreateChatRoom(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := uc.CreateChatRoom(context.Background(), tt.room)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ChatRoomUseCase.CreateChatRoom() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ChatRoomService.CreateChatRoom() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -67,16 +67,16 @@ func TestChatRoomUseCase_ListChatRooms(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotRooms, err := uc.ListChatRooms(context.Background())
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ChatRoomUseCase.ListChatRooms() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ChatRoomService.ListChatRooms() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if len(gotRooms) != len(tt.wantChatRooms) {
-				t.Errorf("ChatRoomUseCase.ListChatRooms() got = %v rooms, want %v rooms", len(gotRooms), len(tt.wantChatRooms))
+				t.Errorf("ChatRoomService.ListChatRooms() got = %v rooms, want %v rooms", len(gotRooms), len(tt.wantChatRooms))
 				return
 			}
 			for i, gotRoom := range gotRooms {
 				if gotRoom.Name != tt.wantChatRooms[i].Name {
-					t.Errorf("ChatRoomUseCase.ListChatRooms() got = %v, want %v", gotRoom, tt.wantChatRooms[i])
+					t.Errorf("ChatRoomService.ListChatRooms() got = %v, want %v", gotRoom, tt.wantChatRooms[i])
 				}
 			}
 		})

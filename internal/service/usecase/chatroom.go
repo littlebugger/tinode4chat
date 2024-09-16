@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/littlebugger/tinode4chat/internal/service/entity"
 )
@@ -25,14 +26,14 @@ type RoomsClient interface {
 	RemoveUserFromTopic(topicName, userEmail string) error
 }
 
-// ChatRoomUseCase defines the business logic for chat room operations
-type ChatRoomUseCase struct {
+// ChatRoomService defines the business logic for chat room operations
+type ChatRoomService struct {
 	repo  ChatRoomRepository
 	rooms RoomsClient
 }
 
-func NewChatRoomUseCase(repo ChatRoomRepository, client RoomsClient) *ChatRoomUseCase {
-	return &ChatRoomUseCase{
+func NewChatRoomUseCase(repo ChatRoomRepository, client RoomsClient) *ChatRoomService {
+	return &ChatRoomService{
 		repo:  repo,
 		rooms: client,
 	}
@@ -42,7 +43,7 @@ func NewChatRoomUseCase(repo ChatRoomRepository, client RoomsClient) *ChatRoomUs
 // TODO: check if room exist before any action with it
 
 // CreateChatRoom handles the business logic for creating a chat room
-func (uc *ChatRoomUseCase) CreateChatRoom(ctx context.Context, room entity.ChatRoom) (*string, error) {
+func (uc *ChatRoomService) CreateChatRoom(ctx context.Context, room entity.ChatRoom) (*string, error) {
 	if room.Name == "" {
 		return nil, entity.ErrInvalidRoomName
 	}
@@ -70,12 +71,12 @@ func (uc *ChatRoomUseCase) CreateChatRoom(ctx context.Context, room entity.ChatR
 // TODO: wrap all errors into entity errors
 
 // ListChatRooms returns a list of chat rooms
-func (uc *ChatRoomUseCase) ListChatRooms(ctx context.Context) ([]entity.ChatRoom, error) {
+func (uc *ChatRoomService) ListChatRooms(ctx context.Context) ([]entity.ChatRoom, error) {
 	return uc.repo.ListChatRooms(ctx)
 }
 
 // AddUserToChatRoom adds a user to a chat room
-func (uc *ChatRoomUseCase) AddUserToChatRoom(ctx context.Context, roomID entity.ChatRoomID, userID entity.UserID) error {
+func (uc *ChatRoomService) AddUserToChatRoom(ctx context.Context, roomID entity.ChatRoomID, userID entity.UserID) error {
 	// Get the user email from the user ID
 	userEmail, err := uc.repo.GetUserEmailByID(ctx, userID)
 	if err != nil {
@@ -92,7 +93,7 @@ func (uc *ChatRoomUseCase) AddUserToChatRoom(ctx context.Context, roomID entity.
 }
 
 // RemoveUserFromChatRoom removes a user from a chat room
-func (uc *ChatRoomUseCase) RemoveUserFromChatRoom(ctx context.Context, roomID entity.ChatRoomID, userID entity.UserID) error {
+func (uc *ChatRoomService) RemoveUserFromChatRoom(ctx context.Context, roomID entity.ChatRoomID, userID entity.UserID) error {
 	// Get the user email from the user ID
 	userEmail, err := uc.repo.GetUserEmailByID(ctx, userID)
 	if err != nil {
@@ -106,4 +107,40 @@ func (uc *ChatRoomUseCase) RemoveUserFromChatRoom(ctx context.Context, roomID en
 
 	// Update your database if necessary
 	return uc.repo.RemoveUserFromChatRoom(ctx, roomID, userID)
+}
+
+func (uc *ChatRoomService) HandleMetaEvent(ctx context.Context, meta map[string]interface{}) error {
+	if contacts, ok := meta["sub"].([]interface{}); ok {
+		for _, c := range contacts {
+			contact := c.(map[string]interface{})
+			topic := contact["topic"].(string)
+			userID := contact["user"].(string)
+
+			log.Printf("New subscription to topic: %s", topic)
+
+			// Check if the room already exists
+			exists, err := uc.repo.IsRoomExist(ctx, topic)
+			if err != nil {
+				return err
+			}
+
+			if !exists {
+				room := entity.ChatRoom{
+					ID:           topic,
+					Name:         topic,
+					Participants: []entity.UserID{userID},
+				}
+				_, err := uc.repo.CreateChatRoom(ctx, room)
+				if err != nil {
+					return err
+				}
+			} else {
+				err := uc.repo.AddUserToChatRoom(ctx, topic, userID)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
 }

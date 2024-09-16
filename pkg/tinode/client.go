@@ -36,6 +36,14 @@ func (c *TinodeClient) Connect() error {
 	return nil
 }
 
+func (c *TinodeClient) ReadMessage() (map[string]interface{}, error) {
+	var msg map[string]interface{}
+	if err := c.wsConn.ReadJSON(&msg); err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
 func (c *TinodeClient) Close() error {
 	return c.wsConn.Close()
 }

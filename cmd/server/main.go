@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	worker "github.com/littlebugger/tinode4chat/internal/tinode"
 	tinode "github.com/littlebugger/tinode4chat/pkg/tinode"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -57,6 +60,29 @@ func main() {
 	}
 	defer tinodeClient.Close()
 
+	// Set Up UseCases
+	userUC := usecase.NewUserUseCase(repo, tinodeClient)
+	chatroomUC := usecase.NewChatRoomUseCase(repo, tinodeClient)
+	messageUC := usecase.NewMessageUseCase(repo, tinodeClient)
+
+	// Create the worker
+	tinodeWorker := worker.NewTinodeWorker(tinodeClient)
+
+	// Start the worker
+	tinodeWorker.Start()
+
+	// Handle events from the worker
+	go eventLoop(tinodeWorker, userUC, chatroomUC, messageUC)
+
+	// Wait for interrupt signal to gracefully shutdown the worker
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	<-sigs
+
+	log.Println("Shutting down worker...")
+	tinodeWorker.Stop()
+	log.Println("Worker stopped.")
+
 	// Login as admin
 	adminEmail := os.Getenv("TINODE_ADMIN_EMAIL")
 	adminPassword := os.Getenv("TINODE_ADMIN_PASSWORD")
@@ -64,11 +90,6 @@ func main() {
 	if err := tinodeClient.Login(adminEmail, adminPassword); err != nil {
 		log.Fatalf("Failed to login to Tinode as admin: %v", err)
 	}
-
-	// Set Up UseCases
-	userUC := usecase.NewUserUseCase(repo, tinodeClient)
-	chatroomUC := usecase.NewChatRoomUseCase(repo, tinodeClient)
-	messageUC := usecase.NewMessageUseCase(repo, tinodeClient)
 
 	// Set up Echo
 	e := echo.New()
@@ -89,5 +110,34 @@ func main() {
 	// Start the HTTP server
 	if err := e.Start(":8080"); err != http.ErrServerClosed {
 		log.Fatal(err)
+	}
+}
+
+func eventLoop(
+	tinodeWorker *worker.TinodeWorker,
+	_ *usecase.UserService,
+	roomUC *usecase.ChatRoomService,
+	messageUC *usecase.MessageService,
+) {
+	for event := range tinodeWorker.Events() {
+		ctx := context.Background()
+		switch event.Type {
+		case "data":
+			data := event.Payload.(map[string]interface{})
+			err := messageUC.HandleDataEvent(ctx, data)
+			if err != nil {
+				log.Printf("Error handling data event: %v", err)
+			}
+		case "meta":
+			meta := event.Payload.(map[string]interface{})
+			err := roomUC.HandleMetaEvent(ctx, meta)
+			if err != nil {
+				log.Printf("Error handling meta event: %v", err)
+			}
+		case "pres":
+			// Here should be user meta events but i do not have support for them in db
+		default:
+			log.Printf("Unknown event type: %s", event.Type)
+		}
 	}
 }
