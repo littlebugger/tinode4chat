@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/littlebugger/tinode4chat/internal/service/entity"
+	"log"
+	"time"
 )
 
 type MessageRepository interface {
@@ -86,4 +88,53 @@ func (m *MessageService) SyncMessagesByChatRoom(ctx context.Context, roomID enti
 	// ...
 
 	return messages, nil
+}
+
+func (m *MessageService) HandleDataEvent(ctx context.Context, data map[string]interface{}) error {
+	topic := data["topic"].(string)
+	content := data["content"].(string)
+	author := data["from"].(string)
+	ts := data["ts"].(string) // Timestamp as string
+
+	// Check if the user is in the room
+	ok, err := m.repo.CheckIfUserInRoom(ctx, topic, author)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		log.Printf("User %s is not part of the chatroom %s", author, topic)
+		return entity.ErrUnauthorized // Ensure proper error handling
+	}
+
+	// Parse the timestamp
+	timestamp, err := time.Parse(time.RFC3339, ts)
+	if err != nil {
+		log.Printf("Error parsing time: %v", err)
+		timestamp = time.Now()
+	}
+
+	// Save the message
+	message := entity.Message{
+		ChatRoomID: topic,
+		Author:     author,
+		Content:    content,
+		Timestamp:  timestamp,
+	}
+	_, err = m.repo.CreateMessage(ctx, message)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Message saved for chatroom %s by user %s", topic, author)
+	return nil
+}
+
+// Helper function to parse time
+func parseTime(ts string) time.Time {
+	t, err := time.Parse(time.RFC3339, ts)
+	if err != nil {
+		log.Printf("Error parsing time: %v", err)
+		return time.Now() // Default to current time if parsing fails
+	}
+	return t
 }

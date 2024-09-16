@@ -12,10 +12,10 @@ import (
 
 // ChatRoomHandler defines the handler for chatroom-related endpoints
 type ChatRoomHandler struct {
-	uc *usecase.ChatRoomUseCase
+	uc *usecase.ChatRoomService
 }
 
-func NewChatRoomHandler(service *usecase.ChatRoomUseCase) *ChatRoomHandler {
+func NewChatRoomHandler(service *usecase.ChatRoomService) *ChatRoomHandler {
 	return &ChatRoomHandler{uc: service}
 }
 
