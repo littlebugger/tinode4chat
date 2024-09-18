@@ -28,7 +28,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - mongo-data:/data/db
-      - ./.mongodb-keyfile/mongo-keyfile:/data/configdb/mongo-keyfile:ro
+      - ./mongodb-keyfile/mongo-keyfile:/mongodb-keyfile/mongo-keyfile:ro # Updated to mount the file directly
       - ./scripts/init-mongo-keyfile.sh:/docker-entrypoint-initdb.d/init-mongo-keyfile.sh:ro
     command: [ "bash", "/docker-entrypoint-initdb.d/init-mongo-keyfile.sh" ]
     healthcheck:

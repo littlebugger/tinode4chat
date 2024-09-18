@@ -5,15 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ec82768-571b-4a1c-ae13-67bcb5edb695" name="Changes" comment="Add JWT middleware and error handling&#10;&#10;Implemented JWT-based authentication middleware with error handling in &quot;pkg/auth/jwt.go&quot;. Enhanced Docker setup and configurations, added new dependencies, and organized error variables in &quot;internal/service/entity/errors.go&quot;.">
-      <change afterPath="$PROJECT_DIR$/internal/tinode/worker.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/entity/errors.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/entity/errors.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/handlers/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/handlers/chatroom.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/chatroom.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/usecase/chatroom_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/chatroom_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/service/usecase/message.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/service/usecase/message.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/tinode/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/tinode/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mongodb-keyfile/mongo-keyfile" beforeDir="false" afterPath="$PROJECT_DIR$/mongodb-keyfile/mongo-keyfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/init-mongo-keyfile.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/init-mongo-keyfile.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
