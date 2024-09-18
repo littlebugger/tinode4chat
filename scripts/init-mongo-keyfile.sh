@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Copy the keyFile to the appropriate location and set permissions
-cp /.mongodb-keyfile/mongo-keyfile /data/configdb/mongo-keyfile
+cp /mongodb-keyfile/mongo-keyfile /data/configdb/mongo-keyfile
 chown mongodb:mongodb /data/configdb/mongo-keyfile
 chmod 400 /data/configdb/mongo-keyfile
 
