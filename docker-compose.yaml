@@ -23,8 +23,8 @@ services:
       - MONGO_URL=mongodb://root:example@mongo:27017
     depends_on:
       - mongo
-    volumes:
-      - .:/app
+#    volumes:
+#      - .:/app
 
 volumes:
   mongo-data:
